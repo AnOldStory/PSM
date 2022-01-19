@@ -26,6 +26,7 @@ function .log () {
 
 ISBUILD=false
 ISTEST=false
+ISPRESERVE=false
 ISVERBOSE=0
 
 POSITIONAL_ARGS=()
@@ -40,23 +41,32 @@ function parseArg () {
     do
         case $1 in
             -b|--build|build)
-                ISBUILD=YES
+                # build source code
+                ISBUILD=true
                 QUESTION_NUMBER="$2"
                 shift # past argument
                 shift # past value
                 ;;
             -t|--test|test)
-                ISBUILD=YES
-                ISTEST=YES
+                # test with testcase
+                ISBUILD=true
+                ISTEST=true
                 QUESTION_NUMBER="$2"
                 shift # past argument
                 shift # past value
                 ;;
-            -p|--push|push)
-                # TODO: push code to repositiory
+            -s|--save|save)
+                # TODO: commit & push code to repositiory 
                 ;;
             -v|--verbose|verbose)
+                # print info
                 ISVERBOSE=7
+                shift # past argument
+                ;;
+            -p|--preserve|preserve)
+                # preserve binary code
+                ISPRESERVE=true
+                echo "tset"
                 shift # past argument
                 ;;
             -*|--*)
@@ -155,7 +165,9 @@ function main() {
         testAll
     fi
 
-    after_clean
+    if [[ ! $ISPRESERVE ]]; then
+        after_clean
+    fi
 
     echo "Success!"
 }
