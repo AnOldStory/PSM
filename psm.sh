@@ -66,7 +66,6 @@ function parseArg () {
             -p|--preserve|preserve)
                 # preserve binary code
                 ISPRESERVE=true
-                echo "tset"
                 shift # past argument
                 ;;
             -*|--*)
@@ -157,15 +156,15 @@ function main() {
 
     before_clean
 
-    if [[ $ISBUILD ]]; then 
+    if [[ $ISBUILD == "true" ]]; then 
         buildScript     
     fi
 
-    if [[ $ISTEST ]]; then
+    if [[ $ISTEST == "true" ]]; then
         testAll
     fi
 
-    if [[ ! $ISPRESERVE ]]; then
+    if [[ $ISPRESERVE == "false" ]]; then
         after_clean
     fi
 
