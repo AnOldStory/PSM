@@ -26,26 +26,8 @@
   "code-runner.runInTerminal": true,
   "terminal.explorerKind": "integrated",
   "terminal.integrated.defaultProfile.linux": "bash",
-  "terminal.integrated.defaultProfile.windows": "Command Prompt",
-  "terminal.integrated.profiles.windows": {
-    "PowerShell": {
-      "source": "PowerShell",
-      "icon": "terminal-powershell"
-    },
-    "Command Prompt": {
-      "path": [
-        "${env:windir}\\Sysnative\\cmd.exe",
-        "${env:windir}\\System32\\cmd.exe"
-      ],
-      "args": [],
-      "icon": "terminal-cmd"
-    },
-    "Git Bash": {
-      "source": "Git Bash"
-    }
-  },
+  "terminal.integrated.defaultProfile.windows": "Ubuntu-22.04 (WSL)",
   "breadcrumbs.enabled": true,
-  "prettier.jsxBracketSameLine": true,
   "editor.bracketPairColorization.enabled": true,
   "C_Cpp.vcFormat.newLine.closeBraceSameLine.emptyFunction": true,
   "C_Cpp.vcFormat.newLine.closeBraceSameLine.emptyType": true,
