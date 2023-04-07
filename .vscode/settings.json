@@ -32,4 +32,11 @@
   "C_Cpp.vcFormat.newLine.closeBraceSameLine.emptyFunction": true,
   "C_Cpp.vcFormat.newLine.closeBraceSameLine.emptyType": true,
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 2, ColumnLimit: 0 }",
+  "files.associations": {
+    "ostream": "cpp",
+    "cmath": "cpp",
+    "iostream": "cpp",
+    "initializer_list": "cpp",
+    "queue": "cpp"
+  }
 }
