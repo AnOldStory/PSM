@@ -32,26 +32,33 @@ ISVERBOSE=3
 POSITIONAL_ARGS=()
 RELATIVE_DIR=""
 CANONICAL_DIR=""
-SOURCE_DIR=""
-TESTCASE_DIR=""
-TEMP_DIR=""
+FILE_DIR=""
+TARGET_DIR=""
+TARGET_FILE=""
 
 
 function parseArg () {
     while [[ $# -gt 0 ]];
     do
         case $1 in
-            -b|--build|build)
-                # build source code
+            # -b|--build|build)
+            #     # build source code
+            #     ISBUILD=true
+            #     shift # past value
+            #     ;;
+            -f|--file|file)
                 ISBUILD=true
-                shift # past value
+                # ISTEST=true
+                setDir $@
+                shift # -d
+                shift # dir...
                 ;;
-            -t|--test|test)
-                # test with testcase
-                ISBUILD=true
-                ISTEST=true
-                shift # past value
-                ;;
+            # -t|--test|test)
+            #     # test with testcase
+            #     ISBUILD=true
+            #     ISTEST=true
+            #     shift # past value
+            #     ;;
             -s|--save|save)
                 # TODO: commit & push code to repositiory 
                 ;;
@@ -69,12 +76,13 @@ function parseArg () {
                 .log 3 "Unknown option $1"
                 exit 1
                 ;;
-            ''|*[!0-9]*)
-                .log 3 "Question Number is required."
-                exit 1
-                ;;
+            # ''|*[!0-9]*)
+            #     .log 3 "Question Number is required."
+            #     exit 1
+            #     ;;
             *)
-                QUESTION_NUMBER="$1"
+                .log 3 "Unknown arg $1"
+                # QUESTION_NUMBER="$1"
                 shift # past argument
                 ;;
         esac
@@ -82,16 +90,47 @@ function parseArg () {
 }
 
 function setDir() {
+    .log 7 "Set Directory"
+
     .log 7 'PARAM:' $0 # psm.sh
+
+    FILE_ARG=$2
+    .log 7 'FILE ARG :' $FILE_ARG
+
+    TARGET_DIR=`dirname $FILE_ARG`
+    .log 7 'Target Dir:' $TARGET_DIR # -> target base 
+
+    TARGET_FILE=`basename $FILE_ARG`
+    .log 7 'Target File:' $TARGET_FILE
+
     RELATIVE_DIR=`dirname "$0"`
-    .log 7 'Dir:' $RELATIVE_DIR #running position directory
+    .log 7 'RELATIVE DIR:' $RELATIVE_DIR # running position directory -> terminalbase
 
     CANONICAL_DIR=`readlink -f $RELATIVE_DIR`
     .log 7 'CANONICAL DIR:' $CANONICAL_DIR # absolute directory
+}
 
-    SOURCE_DIR=$CANONICAL_DIR/archive/$QUESTION_NUMBER
-    TESTCASE_DIR=$CANONICAL_DIR/archive/$QUESTION_NUMBER
-    TEMP_DIR=$CANONICAL_DIR/temp
+######
+###### Testing
+######
+
+function testAll () {
+    .log 6 "Test Dir $TARGET_DIR/input in $1"
+    for test in "$TARGET_DIR"/input/*
+    do
+        if [ -e $test ]; then 
+            .log 6 "Run Test with $test"
+            cat $test | $@ > $TARGET_DIR/output/$(basename $test)
+            if [ $? -ne 0 ]; then
+                .log 3 "Error in $test"
+                exit 1
+            else
+                .log 2 "------$test------"
+                cat $TARGET_DIR/output/$(basename $test)
+                .log 2 "------$test------"
+            fi
+        fi 
+    done        
 }
 
 
@@ -100,41 +139,40 @@ function setDir() {
 ######
 
 function buildScript () {
-    .log 6 "Checking Question Number : $QUESTION_NUMBER"
-    file=`find $SOURCE_DIR -name $QUESTION_NUMBER.*` # find file in archived
-    if [[ -e $SOURCE_DIR/$file ]]; then # TODO: Why Working reverse??
-        .log 3 "File not exists. [$file]"
+    .log 6 "Checking Main File At $TARGET_DIR"
+
+    if [ -n "$TARGET_FILE" ]; then
+        file=$TARGET_FILE
+    else
+        file=`find $TARGET_DIR -name Main.*` # find file in archived
+        # file=`find . -type f | grep -E "/(Main|Solution)"` # include Solution
+    fi
+
+    if [[ ! -e $TARGET_DIR/$file ]]; then
+        .log 3 "File not exists. [$TARGET_DIR/$file]"
         exit 1
     fi
 
     .log 6 "Build Start with [$file]"
     case ${file##*.} in ## check file extension && build
         c)
-            gcc $file -o $TEMP_DIR/$QUESTION_NUMBER
+            gcc $TARGET_DIR/*.c -o $TARGET_DIR/bin
+            testAll $TARGET_DIR/bin
         ;;
         cpp)
-            g++ $file -o $TEMP_DIR/$QUESTION_NUMBER
+            g++ $TARGET_DIR/*.cpp -o $TARGET_DIR/bin
+            testAll $TARGET_DIR/bin
+        ;;
+        java)
+            testAll java $TARGET_DIR/$TARGET_FILE
         ;;
         *)
             .log 3 "Unsupported file extension."
-            exit 1
+            # exit 1
         ;;
     esac
 }
 
-######
-###### Testing
-######
-
-function testAll () {
-    .log 6 "Run Test with $TESTCASE_DIR/input"
-    for test in "$TESTCASE_DIR"/input/*
-    do
-        if [ -e $test ]; then 
-            cat $test | $TEMP_DIR/$QUESTION_NUMBER > $SOURCE_DIR/output/$(basename $test)
-        fi 
-    done        
-}
 
 ######
 ###### Making Clean
@@ -142,20 +180,17 @@ function testAll () {
 
 function before_clean () {
     .log 6 "Clear Before Temp File"
-    rm -rf $SOURCE_DIR/output
-    mkdir $SOURCE_DIR/output
+    rm -rf $TARGET_DIR/output
+    mkdir $TARGET_DIR/output
 }
 
 function after_clean () {
     .log 6 "Clear After Temp File"
-    rm -f $TEMP_DIR/$QUESTION_NUMBER
+    rm -f $TARGET_DIR/bin
 }
 
 function main() {
     parseArg $@
-
-    .log 7 "Set Directory"
-    setDir
 
     .log 7 "Clean before start"
     before_clean
@@ -165,10 +200,10 @@ function main() {
         buildScript     
     fi
 
-    if [[ $ISTEST == "true" ]]; then
-        .log 7 "Test Start"
-        testAll
-    fi
+    # if [[ $ISTEST == "true" ]]; then
+    #     .log 7 "Test Start"
+    #     testAll
+    # fi
 
     if [[ $ISPRESERVE == "false" ]]; then
         .log 7 "Clean after Start"
@@ -179,3 +214,6 @@ function main() {
 }
 
 main $@
+
+
+ 
