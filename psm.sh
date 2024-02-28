@@ -5,7 +5,7 @@
 ##################################
 
 #   
-#   Problem Solving Manager V 1.0
+#   Problem Solving Manager V 2.0
 #
 
 ######
@@ -49,7 +49,7 @@ function parseArg () {
             -f|--file|file)
                 ISBUILD=true
                 # ISTEST=true
-                setDir $@
+                setDir "$@"
                 shift # -d
                 shift # dir...
                 ;;
@@ -94,19 +94,19 @@ function setDir() {
 
     .log 7 'PARAM:' $0 # psm.sh
 
-    FILE_ARG=$2
-    .log 7 'FILE ARG :' $FILE_ARG
+    FILE_ARG="$2"
+    .log 7 'FILE ARG :' "$FILE_ARG"
 
-    TARGET_DIR=`dirname $FILE_ARG`
+    TARGET_DIR=`dirname "$FILE_ARG"`
     .log 7 'Target Dir:' $TARGET_DIR # -> target base 
 
-    TARGET_FILE=`basename $FILE_ARG`
+    TARGET_FILE=`basename "$FILE_ARG"`
     .log 7 'Target File:' $TARGET_FILE
 
     RELATIVE_DIR=`dirname "$0"`
     .log 7 'RELATIVE DIR:' $RELATIVE_DIR # running position directory -> terminalbase
 
-    CANONICAL_DIR=`readlink -f $RELATIVE_DIR`
+    CANONICAL_DIR=`readlink -f "$RELATIVE_DIR"`
     .log 7 'CANONICAL DIR:' $CANONICAL_DIR # absolute directory
 }
 
@@ -118,15 +118,15 @@ function testAll () {
     .log 6 "Test Dir $TARGET_DIR/input in $1"
     for test in "$TARGET_DIR"/input/*
     do
-        if [ -e $test ]; then 
+        if [ -e "$test" ]; then 
             .log 6 "Run Test with $test"
-            cat $test | $@ > $TARGET_DIR/output/$(basename $test)
+            cat "$test" | "$@" > "$TARGET_DIR"/output/$(basename "$test")
             if [ $? -ne 0 ]; then
                 .log 3 "Error in $test"
                 exit 1
             else
                 .log 2 "------$test------"
-                cat $TARGET_DIR/output/$(basename $test)
+                cat "$TARGET_DIR"/output/$(basename "$test")
                 .log 2 "------$test------"
             fi
         fi 
@@ -156,15 +156,15 @@ function buildScript () {
     .log 6 "Build Start with [$file]"
     case ${file##*.} in ## check file extension && build
         c)
-            gcc $TARGET_DIR/*.c -o $TARGET_DIR/bin
-            testAll $TARGET_DIR/bin
+            gcc "$TARGET_DIR"/*.c -o "$TARGET_DIR/bin"
+            testAll "$TARGET_DIR/bin"
         ;;
         cpp)
-            g++ $TARGET_DIR/*.cpp -o $TARGET_DIR/bin
-            testAll $TARGET_DIR/bin
+            g++ "$TARGET_DIR"/*.cpp -o "$TARGET_DIR/bin"
+            testAll "$TARGET_DIR/bin"
         ;;
         java)
-            testAll java $TARGET_DIR/$TARGET_FILE
+            testAll java "$TARGET_DIR/$TARGET_FILE"
         ;;
         *)
             .log 3 "Unsupported file extension."
@@ -180,17 +180,17 @@ function buildScript () {
 
 function before_clean () {
     .log 6 "Clear Before Temp File"
-    rm -rf $TARGET_DIR/output
-    mkdir $TARGET_DIR/output
+    rm -rf "$TARGET_DIR/output"
+    mkdir "$TARGET_DIR/output"
 }
 
 function after_clean () {
     .log 6 "Clear After Temp File"
-    rm -f $TARGET_DIR/bin
+    rm -f "$TARGET_DIR/bin"
 }
 
 function main() {
-    parseArg $@
+    parseArg "$@"
 
     .log 7 "Clean before start"
     before_clean
@@ -213,7 +213,10 @@ function main() {
     echo "Success!"
 }
 
-main $@
+main "$@"
+
+
+ 
 
 
  
