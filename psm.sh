@@ -5,7 +5,7 @@
 ##################################
 
 #   
-#   Problem Solving Manager V 2.0
+#   Problem Solving Manager V 2.1
 #
 
 ######
@@ -115,7 +115,7 @@ function setDir() {
 ######
 
 function testAll () {
-    .log 6 "Test Dir $TARGET_DIR/input in $1"
+    .log 6 "Test Dir $TARGET_DIR/input in $@"
     for test in "$TARGET_DIR"/input/*
     do
         if [ -e "$test" ]; then 
@@ -164,7 +164,10 @@ function buildScript () {
             testAll "$TARGET_DIR/bin"
         ;;
         java)
-            testAll java "$TARGET_DIR/$TARGET_FILE"
+            javac "$TARGET_DIR"/*.java
+            TARGET_FILE=$(grep -l -r --include='*.java' 'public static void main(String\[\] args)' "$TARGET_DIR" | xargs -d '\n' basename -s .java)
+            # testAll java "$TARGET_DIR/$TARGET_FILE"
+            testAll java -cp "$TARGET_DIR" "$TARGET_FILE"
         ;;
         *)
             .log 3 "Unsupported file extension."
@@ -187,6 +190,7 @@ function before_clean () {
 function after_clean () {
     .log 6 "Clear After Temp File"
     rm -f "$TARGET_DIR/bin"
+    rm -rf "$TARGET_DIR"/*.class
 }
 
 function main() {
