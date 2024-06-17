@@ -26,7 +26,7 @@
   "code-runner.preserveFocus": true,
   "code-runner.runInTerminal": true,
   "terminal.integrated.defaultProfile.linux": "bash",
-  "terminal.integrated.defaultProfile.windows": "Ubuntu-22.04 (WSL)",
+  "terminal.integrated.defaultProfile.windows": "Ubuntu-24.04 (WSL)",
   "breadcrumbs.enabled": true,
   "editor.bracketPairColorization.enabled": true,
   "C_Cpp.vcFormat.newLine.closeBraceSameLine.emptyFunction": true,
@@ -39,8 +39,10 @@
     "deque": "cpp",
     "list": "cpp",
     "vector": "cpp",
-    "iostream": "cpp"
-  }
+    "iostream": "cpp",
+    "ostream": "cpp"
+  },
+  "C_Cpp.default.compilerPath": "C:\\MinGW\\bin\\g++.exe"
   // "files.associations": {
   //   "ostream": "cpp",
   //   "iostream": "cpp",
